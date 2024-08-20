@@ -1,0 +1,41 @@
+# project: 
+#   type: book
+
+output-dir: "./_output"
+
+title: "Growth Path Comparison of China and Brazil"
+author:
+  name: "Nikita Tkachenko"
+  email: "ntkachenko@bridges-and-barriers.com"
+date: today
+downloads: [pdf]
+chapters:
+  - index.qmd
+  # - part: Part One
+  #   chapters: 
+  #     - chapter.qmd
+  #     - another.qmd
+
+format:
+  html:
+    smooth-scroll: true
+    number-sections: false
+    theme: solar
+    # embed-resources: true
+  # pdf:
+  arxiv-pdf:
+    keep-tex: true    
+
+bibliography: references.bib
+
+toc-title: "Contents"
+
+echo: false
+warning: false
+error: false
+message: false
+
+fig-dpi: 300
+
+execute:
+  freeze: auto

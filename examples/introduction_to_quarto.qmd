@@ -1,0 +1,78 @@
+---
+title: How Quarto Works
+keep-md: true
+
+format: 
+  html: 
+    style: darkly 
+  pdf:
+    documentclass: article
+    keep-tex: true
+
+echo: false
+warning: false
+error: false
+message: false
+---
+
+```{mermaid}
+%%| fig-cap: How quarto works
+flowchart LR
+  markdown --> qmd
+  yaml --> qmd
+  code --> qmd
+  qmd --> knitr
+  code --> |execute|knitr
+  knitr --> md
+  md --> pandoc 
+  pandoc --> html/pdf/epub/...
+```
+
+# Introduction
+
+The `mtcars` dataset contains fuel consumption and automobile design details for 32 cars (1973-74 models). This brief analysis covers the dataset's structure, summary statistics, and key visualizations.
+
+# Dataset Overview
+
+```{r}
+#| include: false
+# Load necessary libraries
+library(ggplot2)
+ggplot2::theme_set(theme_minimal(base_size = 18))
+data("mtcars")
+```
+
+# Summary Statistics
+
+```{r}
+#| echo: true
+
+summary(mtcars[, c("mpg", "wt")])
+```
+
+# Key Visualizations
+
+## Distribution of Miles Per Gallon (mpg)
+
+```{r}
+#| fig-cap: Histogram of mpg
+#| label: fig-hist
+ggplot(mtcars, aes(x = mpg)) +
+  geom_histogram(binwidth = 2, fill = "steelblue", color = "black") +
+  labs(title = "Distribution of Miles Per Gallon", x = "Miles Per Gallon", y = "Frequency")
+```
+
+## Relationship Between mpg and Weight
+
+```{r}
+#| fig-cap: Scatter plot of mpg vs wt
+#| label: fig-scat
+ggplot(mtcars, aes(x = wt, y = mpg)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  labs(title = "mpg vs Weight", x = "Weight (1000 lbs)", y = "Miles Per Gallon")
+```
+
+# Conclusion
+
+This brief analysis of the `mtcars` dataset provides an overview of car features and their relationships, highlighting the distribution of miles per gallon @fig-hist and its dependence on car weight in @fig-scat.

@@ -1,0 +1,45 @@
+---
+format: html
+---
+
+```{r}
+#| include: true        # include all
+#| eval: true           # evaluate the code
+#| echo: !expr knitr::is_html_output() # show code
+#| output: true         # show results
+#| warning: true        # show warnings
+#| error: true          # show errors
+#| message: true        # show messages
+#| fig-width: 2.5       # figure width in inches
+#| fig-height: 3        # figure height in inches
+#| fig-align: center    # default alignment
+#| collapse: false      # separate code & results
+#| code-fold: false     # disable code folding
+#| cache: false         # disable caching
+
+hi <- "hello!"
+summary(mtcars$mpg)
+hist(mtcars$mpg)
+```
+
+Say `r hi`
+
+
+
+
+
+
+
+
+```{python}
+import matplotlib.pyplot as plt
+
+# Example mpg data
+mpg_data = [21, 21, 22.8, 21.4, 18.7, 18.1, 14.3, 24.4, 22.8, 19.2, 17.8, 16.4, 17.3, 15.2, 10.4, 10.4, 14.7, 32.4, 30.4, 33.9, 21.5, 15.5, 15.2, 13.3, 19.2, 27.3, 26, 30.4, 15.8, 19.7, 15, 21.4]
+
+# Plotting the histogram for mpg
+_ = plt.hist(mpg_data, edgecolor='black', alpha=0.7)
+plt.grid(axis='y', alpha=0.75)
+
+plt.show()
+```

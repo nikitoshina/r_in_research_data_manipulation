@@ -1,0 +1,244 @@
+# Data Manipulation
+
+```{r}
+library(dplyr)
+```
+
+## `tibble()` and `tribble()`
+
+```{r}
+tibble(
+  x = c(1, 2, 3),
+  y = c("one", "two", "three")
+)
+```
+
+```{r}
+tribble(
+  ~x, ~y,
+  1, "one",
+  2, "two",
+  3, "three"
+)
+```
+
+## Basic Data Management With `dplyr`
+
+```{r}
+f <- function(x) x * 2
+g <- function(x) x + 2
+k <- function(x) x / 2
+x <- 3
+
+k(g(f(x)))
+f(x) |> g() |> k()
+f(x) %>% g() %>% k()
+```
+
+### `select()`
+
+```{r}
+pwt_data <- readr::read_csv("data/csvs/pwt_data.csv")
+pwt_data <- select(pwt_data, country, isocode, year, rgdpe)
+head(pwt_data)
+```
+
+```{r}
+pwt_data %>%
+  select(-c(isocode,year)) %>% 
+  tail() 
+```
+
+```{r}
+dplyr::glimpse(pwt_data)
+```
+
+### `filter()`
+
+We use `==` to check one-to-one equality or `!=` for inequality. Also, you can use symbols like `<`, `<=`, `>`, `>=`, and `%in%`. The `%in%` symbol is special – it checks if a value is part of a list.
+
+```{r}
+usa_neighbours <- pwt_data |> 
+  filter(country %in% c("Bahamas", "Mexico",
+                        "Canada", "Russian Federation",
+                        "United States of America")) |>
+  filter(year >= 1980) |>
+  tidyr::drop_na()
+
+slice_sample(usa_neighbours, n = 2, by = country)
+```
+
+```{r}
+usa_neighbours |>
+  filter(
+    country == "United States of America" &
+    (between(year, 2000, 2010) |
+    year == 1998)
+  )
+```
+
+### `mutate()`
+
+```{r}
+tibble(rows = 1:4) %>%
+  mutate(
+    One = 1,
+    Comment = "Something",
+    Approved = TRUE
+  )
+```
+
+```{r}
+usa_neighbours <- usa_neighbours %>% 
+  mutate(
+    growth = round(rgdpe/lag(rgdpe) - 1, 2),
+    deviation = growth - mean(growth, na.rm = TRUE),
+    .by = country, # group by, covered later
+    .keep = "unused" # keep only newly created columns
+  ) 
+
+usa_neighbours
+
+usa_neighbours <- select(usa_neighbours, -deviation)
+```
+
+### `case_match()`
+
+```{r}
+usa_neighbours <- usa_neighbours %>%
+  mutate(country = case_match(
+    country,
+    "United States of America" ~ "USA",
+    "Russian Federation" ~ "Russia",
+    .default = country
+  ))
+
+usa_neighbours
+```
+
+### `arrange()`
+
+```{r}
+usa_neighbours %>%
+  arrange(desc(growth)) # desc() for descending
+```
+
+### `summarize()`
+
+```{r}
+usa_neighbours %>%
+  summarize( 
+    min_gr = min(growth, na.rm = TRUE),
+    max_gr = max(growth, na.rm = TRUE),
+    mean_gr = mean(growth, na.rm = TRUE),
+  )
+```
+
+> reframe()
+
+### `group_by()`
+
+```{r}
+usa_neighbours %>%
+  group_by(country) %>%
+  summarize(
+    min_gr = min(growth, na.rm = TRUE),
+    max_gr = max(growth, na.rm = TRUE),
+    mean_gr = mean(growth, na.rm = TRUE),
+    year_range = paste0(min(year), "–", max(year)),
+    n = n()
+  ) 
+```
+
+### `ungroup()`
+
+```{r}
+pwt_data %>%
+  group_by(country) %>%
+  mutate(growth = rgdpe/lag(rgdpe) - 1) %>%
+  summarize(average_country_growth = mean(growth, na.rm = TRUE))|>
+  ungroup()
+```
+
+```{r}
+pwt_data %>%
+  group_by(country) %>%
+  mutate(growth = rgdpe/lag(rgdpe) - 1) %>%
+  ungroup() %>%
+  summarize(average_country_growth = mean(growth, na.rm = TRUE))
+```
+
+### `.by`
+
+```{r}
+#| output: false
+pwt_data %>%
+  mutate(growth = rgdpe/lag(rgdpe) - 1,
+         .by = country) %>%
+  summarize(average_country_growth = mean(growth, na.rm = TRUE))
+```
+
+### `rowwise()`
+
+```{r}
+df <- tibble(
+  x = list(1, 2:3, 4:6, 7:11)
+)
+
+df
+```
+
+```{r}
+df %>% mutate(length = length(x))
+```
+
+```{r}
+df %>%
+  rowwise() %>%
+  mutate(length = length(x)) %>%
+  ungroup()
+```
+
+> Or you can use `lengths()`.
+
+### `count()`
+
+```{r}
+pwt_data %>%
+  tidyr::drop_na(rgdpe) |>
+  # Similar to group_by summarize
+  count(country, sort = TRUE) |>
+  slice_tail(n = 5)
+  
+```
+
+```{r}
+usa_neighbours %>%
+  tidyr::drop_na() %>%
+  mutate(
+    pos_growth = if_else(growth > 0, "Positive", "Negative")
+  ) %>%
+  count(country, pos_growth)
+```
+
+### `rename()`
+
+```{r}
+usa_neighbours %>%
+  rename(gdp_growth = growth, country_name = country)
+```
+
+### `row_number()`
+
+```{r}
+usa_neighbours %>%
+  mutate(id = row_number()) %>%
+  relocate(id)
+```
+
+### `skim()`
+
+```{r}
+library(skimr)
+skim(usa_neighbours)
+```

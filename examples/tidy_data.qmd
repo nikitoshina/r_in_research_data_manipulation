@@ -1,0 +1,109 @@
+# Tidy Data
+
+## `tidyr`
+
+```{r}
+# install.packages("tidyr")
+# install.packages("tidyverse")
+
+library(tidyr)
+library(tidyverse)
+```
+
+```{r}
+library(readr)
+eci_data <- read_csv("data/csvs/eci_data.csv")
+hdr_data <- read_csv("data/csvs/hdr_data.csv")
+pwt10.01 <- read_csv("data/csvs/pwt_data.csv")
+wid_data <- read_csv("data/csvs/wid_data.csv")
+```
+
+### `pivot_longer()`
+
+```{r}
+# Pivot longer
+pwt_clean <- pwt10.01 |>
+  select(year, country, contains("gdp")) |>
+  drop_na()
+
+pwt_clean
+```
+
+```{r}
+out <- pwt_clean |>
+  pivot_longer(-c(year, country))
+
+out
+```
+
+```{r}
+out |>
+  filter(country == "United States of America") |>
+  filter(name != "pl_gdpo") |>
+  ggplot(aes(x = year, y = value,
+             color = name, group = name)) +
+  geom_line(linewidth = 1, alpha = 0.8) +
+  scale_y_log10() +
+  theme_minimal(base_size = 16)
+
+```
+
+```{r}
+hdr_accident <- hdr_data |>
+  select(
+    country,
+    human_development_index_hdi_value_2022,
+    life_expectancy_at_birth_years_2022
+  ) |>
+  pivot_longer(-country)
+```
+
+```{r}
+# Pivot and wider
+hdr_accident
+
+hdr_accident |>
+  pivot_wider(names_from = name, values_from = value)
+```
+
+```{r}
+eci_accidents <- eci_data |>
+  select(code, year, sitc_eci) |>
+  mutate(
+    `code/year` = paste0(code, "/", year),
+    sitc_eci = round(sitc_eci, 2),
+    .keep = "none",
+    .before = 0
+  )
+```
+
+```{r}
+# Separate and Unite
+eci_accidents
+
+eci_accidents |>
+  separate_wider_delim(`code/year`,
+    delim = "/",
+    names = c("code", "year")
+  )
+
+```
+
+```{r}
+eci_data |>
+  select(code, year, sitc_eci) |>
+  unite("code_year", code, year, sep = "_", remove = TRUE)
+```
+
+```{r}
+pwt_variables <- c(
+  rgdpe = "Real GDP, expenditure-side",
+  rgdpo = "Real GDP, output-side",
+  cgdpe = "Current GDP, expenditure-side, in USD",
+  cgdpo = "Current GDP, output-side, in USD",
+  rgdpna = "Real GDP at constant national prices",
+  pl_gdpo = "Price Level of GDP, output-side"
+)
+
+out$label <- pwt_variables[out$name]
+```

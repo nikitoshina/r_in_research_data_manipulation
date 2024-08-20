@@ -1,0 +1,63 @@
+# History files
+.Rhistory
+.Rapp.history
+
+# Session Data files
+.RData
+.RDataTmp
+
+# User-specific files
+.Ruserdata
+
+# Example code in package build process
+*-Ex.R
+
+# Output files from R CMD build
+/*.tar.gz
+
+# Output files from R CMD check
+/*.Rcheck/
+
+# RStudio files and projects
+.Rproj.user/
+*.Rproj
+
+# R Environment Variables
+.Renviron
+.Rprofile
+
+# OAuth2 token (see https://github.com/hadley/httr/releases/tag/v0.3)
+.httr-oauth
+
+# knitr and R markdown files
+*_cache/
+/cache/
+*_freeze/
+*.utf8.md
+*.knit.md
+
+# Temporary files created by R markdown
+*_files
+
+# Produced vignettes
+vignettes/*.html
+vignettes/*.pdf
+
+# pkgdown site
+docs/
+
+# translation temp files
+po/*~
+
+# RStudio Connect folder
+rsconnect/
+
+# macOS system files
+.DS_Store
+
+# Quarto files
+.quarto
+_publish.yml
+
+# Other
+questions/

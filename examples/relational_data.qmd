@@ -1,0 +1,117 @@
+# Relational Data
+
+## Types of Joins
+
+```{r}
+library(dplyr)
+
+employees <- data.frame(
+  employee_id = c(1, 2, 3, 4, 5),   # PK
+  name = c("John", "Jane", "Bob", "Alice", "Tom")
+)
+
+projects <- data.frame(
+  project_id = c(1, 2, 3, 4, 5, 6), # PK
+  employee_id = c(1, 2, 3, 1, 4, 6) # FK
+)
+```
+
+In relational systems, a join operation is employed to merge two or more tables based on a related column between them. There are several types of joins. To exemplify how joins operate, we will use two tables: `employees` and `projects`. The `employees` table includes `employee_id` (Primary Key) and `name`, while the `projects` table contains `project_id` (Primary Key) and `employee_id` (Foreign Key).
+
+#### Left Join
+
+A left join retrieves all rows from the left table, along with matched rows from the right table, adding information to the left table. When performing a left join on employees and projects tables, it shows which employees are assigned to which projects. If there's no corresponding match in the right table, the result displays `NA`, indicating, for instance, that Tom has no project assigned.
+
+![Left Join Illustration](images/Left_Join.png){fig-align="center" width="5.5in"}
+
+```{r}
+left_join(employees, projects, by = "employee_id")
+```
+
+#### Right Join
+
+A right join operates similarly to a left join but retrieves all rows from the right table and only the matched rows from the left table. Below, we perform a right join on the employees and projects tables, showing which projects are assigned to which employees. It is akin to doing a left join between the projects and employees tables. It appears that project 6 does not have anyone assigned to it.
+
+![Right Join Illustration](images/Right_Join.png){fig-align="center" width="5.5in"}
+
+```{r}
+right_join(employees, projects, by = "employee_id")
+```
+
+#### Full Join
+
+A full join combines all rows from both the left and right tables, filling in `NA` values for non-matching rows. This merge offers a complete overview of the combined data. We can observe that project 6 and Tom are unpaired.
+
+![Full Join Illustration](images/Full_Join.png){fig-align="center" width="5.5in"}
+
+```{r}
+full_join(employees, projects, by = "employee_id")
+```
+
+#### Inner Join
+
+An inner join returns only the matched rows between two tables, retaining only those rows that have a match in both tables and creating a complete dataset. As a result, we have no `NA` values because rows without pairs were dropped.
+
+![Inner Join Illustration](images/Inner_Join.png){fig-align="center" width="5.5in"}
+
+```{r}
+inner_join(employees, projects, by = "employee_id")
+```
+
+#### Joining ECI Data
+
+```{r}
+library(readr)
+(eci_data <- read_csv("data/csvs/eci_data.csv"))
+(hdr_data <- read_csv("data/csvs/hdr_data.csv"))
+(pwt10.01 <- read_csv("data/csvs/pwt_data.csv"))
+(wid_data <- read_csv("data/csvs/wid_data.csv"))
+```
+
+```{r}
+library(dplyr)
+df <- inner_join(eci_data, pwt10.01,
+                 by = join_by(code == isocode, year)) |> 
+      filter(year == 2010)
+plot(log(df$rgdpe), df$hs_eci) 
+
+```
+
+```{r}
+library(countrycode)
+eci_data$country <- countrycode(
+  eci_data$code,
+  origin = "iso3c",
+  destination = "country.name")
+
+hdr_data$country <- countrycode(
+  hdr_data$country,
+  origin = "country.name",
+  destination = "country.name")
+
+pwt10.01$country <- countrycode(
+  pwt10.01$isocode,
+  origin = "iso3c",
+  destination = "country.name")
+
+wid_data$country <- countrycode(
+  wid_data$country,
+  origin = "iso2c",
+  destination = "country.name")
+```
+
+```{r}
+wid_data$check_wid <- 1
+pwt10.01$check_pwt <- 1
+left  <- left_join( wid_data, pwt10.01, by = c("year", "country"))
+right <- right_join(wid_data, pwt10.01, c("year", "country"))
+full  <- full_join( wid_data, pwt10.01, join_by(year, country))
+inner <- inner_join(wid_data, pwt10.01)
+
+# Left
+tidyr::drop_na(full, check_wid)
+# Right
+tidyr::drop_na(full, check_pwt)
+# Inner
+tidyr::drop_na(full, check_wid, check_pwt)
+```

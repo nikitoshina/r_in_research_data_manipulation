@@ -1,0 +1,70 @@
+---
+title: "Markdown Elements Showcase"
+author: Nikita Tkachenko
+date: today
+format: html
+---
+
+# H1
+
+## H2
+
+### H3
+
+*italicized text*
+
+**bold text**
+
+> blockquote
+
+Ordered List
+
+1.  First item
+2.  Third item
+3.  Second item
+
+Unordered List
+
+-   An item
+-   Another Item
+-   The other item
+
+`code`
+
+Horizontal Rule
+
+------------------------------------------------------------------------
+
+[link](https://www.example.com)
+
+![Mellow Jess](images/mellow_jess.png){fig-align="left" width="3in"}
+
+| Syntax    | Description |
+|-----------|-------------|
+| *Header*  | `Title`     |
+| Paragraph | Text        |
+
+```         
+{
+  "firstName": "John",
+  "lastName": "Smith",
+  "age": 25
+}
+```
+
+Here's a sentence with a footnote.[^1]
+
+[^1]: This is the footnote.
+
+and another footnote^[Another footnote]
+
+
+
+term
+:   definition
+
+~~strikethrough.~~
+
+Subscript H~2~O
+
+Superscript X^2^
